@@ -92,5 +92,5 @@ def logout():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    # 💡 실시간 기능을 위해 app.run 대신 socketio.run으로 서버를 구동합니다.
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    # 💡 allow_unsafe_werkzeug=True 옵션을 추가하여 배포 서버 오류를 통과시킵니다.
+    socketio.run(app, host='0.0.0.0', port=port, debug=True, allow_unsafe_werkzeug=True)

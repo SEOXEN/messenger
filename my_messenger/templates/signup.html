@@ -1,29 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Messenger Signup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger - Sign Up</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        h2 { color: #0084ff; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #0084ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .link { margin-top: 15px; font-size: 14px; color: #65676b; }
-        .link a { color: #0084ff; text-decoration: none; }
+        /* 로그인 화면과 완전히 일치하는 기본 베이스 스타일 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background: #eef2f3; display: flex; justify-content: center; align-items: center; height: 100vh; }
+
+        /* 💡 반응형 컨테이너: PC와 모바일 화면에 맞춰 유연하게 변형 */
+        .signup-container { background: white; padding: 40px 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        
+        h2 { margin-bottom: 30px; color: #2f3e46; font-size: 24px; font-weight: bold; }
+        
+        /* 입력창 영역 가독성 및 터치 반경 개선 */
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; color: #666; font-size: 14px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 6px; outline: none; font-size: 15px; transition: 0.2s; }
+        .input-group input:focus { border-color: #0084ff; box-shadow: 0 0 5px rgba(0,132,255,0.2); }
+        
+        /* 💡 가입 버튼: 로그인 버튼과 동일하게 큼직하게 설정 */
+        .signup-btn { width: 100%; padding: 14px; background: #2f3e46; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .signup-btn:hover { background: #1e272c; }
+        
+        /* 하단 돌아가기 링크 스타일 */
+        .login-link { margin-top: 25px; font-size: 14px; color: #666; }
+        .login-link a { color: #0084ff; text-decoration: none; font-weight: bold; margin-left: 5px; }
+        .login-link a:hover { text-decoration: underline; }
+
+        /* 💡 스마트폰(가로폭 480px 이하) 최적화 미디어 쿼리 */
+        @media (max-width: 480px) {
+            body { background: white; } /* 모바일에서는 배경을 흰색으로 꽉 채움 */
+            .signup-container { box-shadow: none; padding: 30px 20px; max-width: 90%; }
+            h2 { font-size: 22px; margin-bottom: 25px; }
+            .input-group input, .signup-btn { padding: 15px; font-size: 16px; } /* 엄지손가락 터치 최적화 */
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>Messenger 회원가입</h2>
-        <form action="/signup" method="POST">
-            <input type="text" name="username" placeholder="새로운 아이디" required>
-            <input type="password" name="password" placeholder="비밀번호" required>
-            <button type="submit">가입하기</button>
-        </form>
-        <div class="link">
-            이미 계정이 있으신가요? <a href="/">로그인</a>
+
+<div class="signup-container">
+    <h2>📝 Messenger 회원가입</h2>
+    
+    <form action="/signup" method="POST">
+        <div class="input-group">
+            <label for="username">사용할 아이디</label>
+            <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required autocomplete="off">
         </div>
+        
+        <div class="input-group">
+            <label for="password">사용할 비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        
+        <button type="submit" class="signup-btn">계정 만들기</button>
+    </form>
+    
+    <div class="login-link">
+        이미 계정이 있으신가요? <a href="/">로그인하러 가기</a>
     </div>
+</div>
+
 </body>
 </html>

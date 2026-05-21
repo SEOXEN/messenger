@@ -2,24 +2,37 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messenger Main</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        /* 기존 디자인 스타일은 그대로 완벽하게 유지됩니다 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background: #eef2f3; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .messenger-container { display: flex; width: 900px; height: 650px; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); overflow: hidden; }
-        .sidebar { width: 300px; background: #2f3e46; color: white; display: flex; flex-direction: column; }
+        
+        /* 💡 반응형을 위해 전체 컨테이너의 너비와 높이를 유연하게 변경 */
+        .messenger-container { display: flex; width: 100%; max-width: 1000px; height: 100vh; max-height: 750px; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); overflow: hidden; }
+        
+        /* ⬅️ 왼쪽 영역: 사이드바 */
+        .sidebar { width: 280px; background: #2f3e46; color: white; display: flex; flex-direction: column; transition: all 0.3s ease; }
         .profile-section { padding: 20px; background: #243036; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3a4f59; }
-        .profile-name { font-weight: bold; font-size: 16px; }
+        .profile-name { font-weight: bold; font-size: 15px; }
         .logout-btn { background: #e63946; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; }
         .friend-list { flex: 1; overflow-y: auto; padding: 10px; }
         .friend-item { padding: 12px; margin-bottom: 5px; background: #3a4f59; border-radius: 6px; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .friend-item:hover { background: #4f6b78; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #f4f6f8; }
-        .chat-header { padding: 20px; background: white; border-bottom: 1px solid #e1e4e8; font-weight: bold; font-size: 16px; color: #333; }
+
+        /* ➡️ 오른쪽 영역: 대화창 */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #f4f6f8; position: relative; }
+        
+        /* 💡 모바일 전용 상단 메뉴 버튼이 들어갈 헤더 수정 */
+        .chat-header { padding: 18px 20px; background: white; border-bottom: 1px solid #e1e4e8; font-weight: bold; font-size: 16px; color: #333; display: flex; align-items: center; gap: 10px; }
+        
+        /* 기본 상태에서는 숨겨둘 모바일 사이드바 토글 버튼 */
+        .menu-toggle-btn { display: none; background: #2f3e46; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        
+        /* 말풍선 창 */
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message-wrapper { display: flex; flex-direction: column; max-width: 60%; }
+        .message-wrapper { display: flex; flex-direction: column; max-width: 75%; }
         .message-wrapper.sent { align-self: flex-end; }
         .message-wrapper.received { align-self: flex-start; }
         .sender-name { font-size: 11px; color: #666; margin-bottom: 2px; padding: 0 4px; }
@@ -27,29 +40,60 @@
         .message.received { background: white; border-bottom: 1px solid #ddd; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #333; }
         .message.sent { background: #0084ff; color: white; border-bottom-right-radius: 2px; }
         
-        /* ⌨️ 하단 입력 영역: form 태그를 제거하고 div 구조로 매끄럽게 변경 */
+        /* 하단 입력 영역 */
         .chat-input-area { padding: 15px; background: white; border-top: 1px solid #e1e4e8; display: flex; gap: 10px; width: 100%; }
         .chat-input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; outline: none; font-size: 14px; }
         .send-btn { background: #0084ff; color: white; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .send-btn:hover { background: #0066cc; }
+
+        /* 모바일 화면 백드롭 (메뉴 열렸을 때 어두워지는 효과) */
+        .sidebar-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 5; }
+
+        /* ======================================================= */
+        /* 📱 [핵심] 태블릿 및 모바일 기기를 위한 미디어 쿼리 (768px 이하) */
+        /* ======================================================= */
+        @media (max-width: 768px) {
+            body { background: #f4f6f8; }
+            .messenger-container { height: 100vh; max-height: 100vh; border-radius: 0; box-shadow: none; }
+            
+            /* 사이드바를 화면 왼쪽 밖으로 숨기고, 절대 좌표로 띄움 */
+            .sidebar { position: absolute; left: -280px; top: 0; height: 100%; z-index: 10; box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            
+            /* 사이드바가 열렸을 때 (클래스가 붙었을 때) 제자리로 나오게 함 */
+            .sidebar.active { left: 0; }
+            .sidebar.active + .chat-area .sidebar-overlay { display: block; }
+
+            /* 모바일 전용 메뉴 버튼 열기 */
+            .menu-toggle-btn { display: inline-block; }
+            
+            /* 폰에서는 말풍선이 조금 더 넓게 펴지도록 설정 */
+            .message-wrapper { max-width: 85%; }
+            .chat-messages { padding: 15px; }
+            .chat-input-area { padding: 10px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="messenger-container">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="profile-section">
             <span class="profile-name">👤 {{ username }}님</span>
             <a href="/logout" class="logout-btn">로그아웃</a>
         </div>
         <div class="friend-list">
             <div style="font-size: 12px; color: #8b9bb4; margin-bottom: 10px; padding-left: 5px;">채팅방 목록</div>
-            <div class="friend-item">💬 오픈 채팅방 (전체 대화)</div>
+            <div class="friend-item" onclick="toggleSidebar()">💬 오픈 채팅방 (전체 대화)</div>
         </div>
     </div>
 
     <div class="chat-area">
-        <div class="chat-header">💬 오픈 채팅방</div>
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <div class="chat-header">
+            <button class="menu-toggle-btn" onclick="toggleSidebar()">☰ 메뉴</button>
+            <span>💬 오픈 채팅방</span>
+        </div>
         
         <div class="chat-messages">
             {% for msg in messages %}
@@ -74,37 +118,40 @@
 </div>
 
 <script>
-    // 1. 웹소켓 객체 초기화 및 연결
+    // 1. 웹소켓 및 변수 초기화
     const socket = io();
     const myName = "{{ username }}";
 
     const chatMessages = document.querySelector('.chat-messages');
     const inputField = document.getElementById('content');
     const sendBtn = document.getElementById('send-btn');
+    const sidebar = document.getElementById('sidebar');
 
-    // 스크롤을 최하단으로 정렬하는 함수
+    // 💡 모바일 환경에서 메뉴바를 여닫는 함수
+    function toggleSidebar() {
+        sidebar.classList.toggle('active');
+    }
+
     function scrollToBottom() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    scrollToBottom(); // 초기 로드 시 실행
+    scrollToBottom();
 
-    // 2. 메시지를 웹소켓 채널로 전송하는 함수
+    // 2. 메시지 전송
     function sendMessage() {
         const text = inputField.value.trim();
         if (text !== "") {
-            // 서버의 'send_message' 리스너로 이벤트 전송
             socket.emit('send_message', { 'content': text });
-            inputField.value = ""; // 입력란 비우기
+            inputField.value = "";
         }
     }
 
-    // 클릭 및 엔터 키 입력 시 전송 기능 매핑
     sendBtn.addEventListener('click', sendMessage);
     inputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
 
-    // 3. 서버로부터 실시간 대화 브로드캐스트 신호 수신 시
+    // 3. 실시간 신호 수신 및 화면 배치
     socket.on('receive_message', (data) => {
         const wrapper = document.createElement('div');
         
@@ -120,7 +167,7 @@
         }
         
         chatMessages.appendChild(wrapper);
-        scrollToBottom(); // 새 메시지가 추가되면 스크롤 하단 이동
+        scrollToBottom();
     });
 </script>
 

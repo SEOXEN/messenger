@@ -1,1 +1,29 @@
-
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Messenger Signup</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        h2 { color: #0084ff; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #0084ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .link { margin-top: 15px; font-size: 14px; color: #65676b; }
+        .link a { color: #0084ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Messenger 회원가입</h2>
+        <form action="/signup" method="POST">
+            <input type="text" name="username" placeholder="새로운 아이디" required>
+            <input type="password" name="password" placeholder="비밀번호" required>
+            <button type="submit">가입하기</button>
+        </form>
+        <div class="link">
+            이미 계정이 있으신가요? <a href="/">로그인</a>
+        </div>
+    </div>
+</body>
+</html>

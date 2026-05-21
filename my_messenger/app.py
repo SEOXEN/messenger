@@ -8,7 +8,8 @@ app.secret_key = 'messenger_secret_key_1234'
 socketio = SocketIO(app)  # 💡 Flask 앱에 웹소켓 기능 연결
 
 def get_db_connection():
-    conn = sqlite3.connect('messenger.db')
+    db_path = os.path.join(os.path.dirname(__file__), 'messenger.db')
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 

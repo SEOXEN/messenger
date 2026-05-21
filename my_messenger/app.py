@@ -69,5 +69,10 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login_page'))
 
+import os
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Render가 부여하는 포트 번호를 사용하고, 없으면 기본 5000번을 씁니다.
+    port = int(os.environ.get('PORT', 5000))
+    # host='0.0.0.0'을 지정해야 외부에서 이 서버로 접속이 가능해집니다.
+    app.run(host='0.0.0.0', port=port, debug=True)

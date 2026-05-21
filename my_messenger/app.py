@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 import sqlite3
 
-app = Flask(__name__)
+import os
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 app.secret_key = 'messenger_secret_key_1234'
 
 def get_db_connection():
